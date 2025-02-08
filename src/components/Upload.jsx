@@ -77,9 +77,10 @@ const Upload = () => {
 
     const calculateTotalPages = (counts) => {
         const total = counts.reduce((sum, file) => {
-            return sum + (typeof file.pages === "number" ? file.pages * file.copies : 0);
+            const rate = file.colorMode === "color" ? 5 : 2;
+            return sum + (typeof file.pages === "number" ? file.pages * file.copies * rate : 0);
         }, 0);
-        setTotalPages(total * 2);
+        setTotalPages(total);
     };
 
     const handleDelete = (fileName) => {
