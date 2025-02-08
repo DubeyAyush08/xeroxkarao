@@ -4,6 +4,8 @@ const Upload = () => {
     const [pageCounts, setPageCounts] = useState([]);
     const [dragging, setDragging] = useState(false);
     const [totalPages, setTotalPages] = useState(0);
+    const [colorMode, setColorMode] = useState("black-and-white");
+    const [copies, setCopies] = useState(1);
 
     useEffect(() => {
         const script = document.createElement("script");
@@ -27,19 +29,19 @@ const Upload = () => {
                     if (file.type === "application/pdf") {
                         if (window.pdfjsLib) {
                             const pdf = await window.pdfjsLib.getDocument(typedArray).promise;
-                            counts.push({ name: file.name, pages: pdf.numPages });
+                            counts.push({ name: file.name, pages: pdf.numPages, colorMode, copies });
                         } else {
                             console.error("PDF.js not loaded yet");
-                            counts.push({ name: file.name, pages: "Error loading PDF.js" });
+                            counts.push({ name: file.name, pages: "Error loading PDF.js", colorMode, copies });
                         }
                     } else if (file.type.startsWith("image/")) {
-                        counts.push({ name: file.name, pages: 1 });
+                        counts.push({ name: file.name, pages: 1, colorMode, copies });
                     } else {
-                        counts.push({ name: file.name, pages: "Unsupported file type" });
+                        counts.push({ name: file.name, pages: "Unsupported file type", colorMode, copies });
                     }
                 } catch (error) {
                     console.error("Error reading file:", error);
-                    counts.push({ name: file.name, pages: "Error reading file" });
+                    counts.push({ name: file.name, pages: "Error reading file", colorMode, copies });
                 }
                 setPageCounts(prevCounts => {
                     const newCounts = [...prevCounts, ...counts];
@@ -75,7 +77,7 @@ const Upload = () => {
 
     const calculateTotalPages = (counts) => {
         const total = counts.reduce((sum, file) => {
-            return sum + (typeof file.pages === "number" ? file.pages : 0);
+            return sum + (typeof file.pages === "number" ? file.pages * file.copies : 0);
         }, 0);
         setTotalPages(total * 2);
     };
@@ -114,12 +116,31 @@ const Upload = () => {
             >
                 {dragging ? "Drop files here..." : "Or drag and drop files here"}
             </div>
+            <div style={{ marginTop: "20px" }}>
+                <label>
+                    Color Mode:
+                    <select value={colorMode} onChange={(e) => setColorMode(e.target.value)} style={{ marginLeft: "10px" }}>
+                        <option value="black-and-white">Black and White</option>
+                        <option value="color">Color</option>
+                    </select>
+                </label>
+                <label style={{ marginLeft: "20px" }}>
+                    Copies:
+                    <input 
+                        type="number" 
+                        value={copies} 
+                        onChange={(e) => setCopies(Number(e.target.value))} 
+                        min="1" 
+                        style={{ marginLeft: "10px", width: "50px" }}
+                    />
+                </label>
+            </div>
             {pageCounts.length > 0 && (
                 <div style={{ marginTop: "20px" }}>
                     {pageCounts.map((file, index) => (
                         <div key={index} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "10px" }}>
                             <p style={{ fontSize: "16px", color: "#555" }}>
-                                📄 {file.name}: Number of Pages: {file.pages}
+                                📄 {file.name}: Number of Pages: {file.pages}, Color Mode: {file.colorMode}, Copies: {file.copies}
                             </p>
                             <button 
                                 style={{ padding: "5px 10px", fontSize: "14px", borderRadius: "5px", backgroundColor: "#f44336", color: "#fff", border: "none", cursor: "pointer" }}
@@ -129,11 +150,6 @@ const Upload = () => {
                             </button>
                         </div>
                     ))}
-                </div>
-            )}
-            {totalPages > 0 && (
-                <div style={{ marginTop: "20px", fontSize: "18px", color: "#333" }}>
-                    Total Pages * 2: ₹{totalPages}
                 </div>
             )}
             {totalPages > 0 && (
