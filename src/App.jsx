@@ -7,8 +7,8 @@ import Loginshopowner from './components/auth/shopowner/Loginshopowner'
 import Signupshopowner from './components/auth/shopowner/Signupshopowner'
 import Dashboarduser from './components/dashboard/user/Dashboarduser'
 import Dashboardshopowner from './components/dashboard/shopowner/Dashboardshopowner'
-import Upload from './components/Upload'
-import Status from './components/Status'
+import Upload from './components/dashboard/user/Upload'
+import Status from './components/dashboard/user/Status'
 
 function App() {
 
